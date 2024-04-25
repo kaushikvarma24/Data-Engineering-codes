@@ -1,0 +1,34 @@
+import requests
+from bs4 import BeautifulSoup
+
+def get_survey_numbers(district, mandal, village):
+    url = 'https://dharani.telangana.gov.in/knowLandStatus'
+    data = {
+        'District': district,
+        'Mandal': mandal,
+        'Village': village,
+        'SurveyNumber': ''
+    }
+
+    response = requests.post(url, data=data)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    survey_numbers = []
+
+    # Assuming survey numbers are in a table with class 'table-bordered'
+    table = soup.find('table', class_='table-bordered')
+    if table:
+        rows = table.find_all('tr')
+        for row in rows[1:]:  # skipping header row
+            cells = row.find_all('td')
+            survey_number = cells[0].text.strip()
+            survey_numbers.append(survey_number)
+
+    return survey_numbers
+
+# Example usage:
+district = 'Your District'
+mandal = 'Your Mandal'
+village = 'Your Village'
+
+survey_numbers = get_survey_numbers(district, mandal, village)
+print("Survey numbers:", survey_numbers)
